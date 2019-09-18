@@ -1,0 +1,55 @@
+---
+
+# TODO set/discover this elsewhere
+database_type: mysql
+
+cloudera_manager_database:
+  host: "{{ deployment.databases.CLOUDERA_MANAGER.host | default(groups['db_server'][0]) }}"
+  type: "{{ deployment.databases.CLOUDERA_MANAGER.type | default(database_type) }}"
+  name: "{{ deployment.databases.CLOUDERA_MANAGER.name | default('scm') }}"
+  user: "{{ deployment.databases.CLOUDERA_MANAGER.user | default('scm') }}"
+  password: "{{ deployment.databases.CLOUDERA_MANAGER.password | default('changeme') }}"
+  prepare_script_path: "{{ '/usr/share/cmf/schema/scm_prepare_database.sh' 
+        if deployment.cloudera_manager.version.split('.')[0] < '6' else 
+          '/opt/cloudera/cm/schema/scm_prepare_database.sh' }}"
+
+database_extra:
+  configs:
+    MGMT:
+      ACTIVITYMONITOR:
+        firehose_database_host: "{{ deployment.databases.ACTIVITYMONITOR.host | default(groups['db_server'][0]) }}"
+        firehose_database_type: "{{ deployment.databases.ACTIVITYMONITOR.type | default(database_type) }}"
+        firehose_database_name: "{{ deployment.databases.ACTIVITYMONITOR.name | default('amon') }}"
+        firehose_database_user: "{{ deployment.databases.ACTIVITYMONITOR.user | default('amon') }}"
+        firehose_database_password: "{{ deployment.databases.ACTIVITYMONITOR.password | default('changeme') }}"
+      REPORTSMANAGER:
+        headlamp_database_host: "{{ deployment.databases.REPORTSMANAGER.host | default(groups['db_server'][0]) }}"
+        headlamp_database_type: "{{ deployment.databases.REPORTSMANAGER.type | default(database_type) }}"
+        headlamp_database_name: "{{ deployment.databases.REPORTSMANAGER.name | default('rman') }}"
+        headlamp_database_user: "{{ deployment.databases.REPORTSMANAGER.user | default('rman') }}"
+        headlamp_database_password: "{{ deployment.databases.REPORTSMANAGER.password | default('changeme') }}"
+      NAVIGATOR:
+        navigator_database_host: "{{ deployment.databases.NAVIGATOR.host | default(groups['db_server'][0]) }}"
+        navigator_database_type: "{{ deployment.databases.NAVIGATOR.type | default(database_type) }}"
+        navigator_database_name: "{{ deployment.databases.NAVIGATOR.name | default('nav') }}"
+        navigator_database_user: "{{ deployment.databases.NAVIGATOR.user | default('nav') }}"
+        navigator_database_password: "{{ deployment.databases.NAVIGATOR.password | default('changeme') }}"
+      NAVIGATORMETASERVER:
+        nav_metaserver_database_host: "{{ deployment.databases.NAVIGATORMETASERVER.host | default(groups['db_server'][0]) }}"
+        nav_metaserver_database_type: "{{ deployment.databases.NAVIGATORMETASERVER.type | default(database_type) }}"
+        nav_metaserver_database_name: "{{ deployment.databases.NAVIGATORMETASERVER.name | default('navms')  }}"
+        nav_metaserver_database_user: "{{ deployment.databases.NAVIGATORMETASERVER.user | default('navms')  }}"
+        nav_metaserver_database_password: "{{ deployment.databases.NAVIGATORMETASERVER.password | default('changeme') }}"
+
+kerberos_extra:
+  configs:
+    CLOUDERA_MANAGER:
+      KDC_HOST: "{{ deployment.krb5.kdc_host }}"
+      KDC_TYPE: "{{ deployment.krb5.kdc_type }}"
+      KRB_ENC_TYPES: "{{ deployment.krb5.enc_types }}"
+      SECURITY_REALM: "{{ deployment.krb5.realm }}"
+      
+parcels_extra:
+  configs:
+    CLOUDERA_MANAGER:
+      REMOTE_PARCEL_REPO_URLS: "{{ deployment.clusters[0].parcel_repositories | join(',') }}"

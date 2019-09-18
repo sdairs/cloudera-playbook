@@ -1,24 +1,25 @@
 {
-  "cdhVersion" : "{{ cluster_version_cdh }}",
-  "displayName" : "{{ cluster_display_name }}",
-  "cmVersion" : "{{ cluster_version_cm }}",
+  "cdhVersion" : "{{ deployment.clusters[0].products.CDH }}",
+  "displayName" : "{{ deployment.clusters[0].name }}",
+  "cmVersion" : "{{ deployment.cloudera_manager.version }}",
   "products" : [
-    {% set prod_j = joiner(",") %}
-    {% for product in scm_products %}
-    {{ prod_j() }}
+    {%- set product_joiner = joiner(",") -%}
+    {%- for product in scm_products -%}
+    {{ product_joiner() }}
     {
       "product" : "{{ product.split('-')[0] }}",
       "version" : "{{ '-'.join(product.split('-')[1:]) }}"
     }
-    {% endfor %}
+    {%- endfor -%}
   ],
   "services" : [
-    {% set serv_j = joiner(",") %}
-    {% for service in cdh_services %}
-    {{ serv_j() }}
-    {% set t = service['type'] + '.j2' %}{% include t %}
-    {% endfor %}
+    {%- set service_joiner = joiner(",") -%}
+    {%- for service_type in deployment.clusters[0].services -%}
+    {%- set service_role_types = role_mappings[service_type] -%}
+    {{ service_joiner() }}
+    {%- include 'service.j2' -%}
+    {%- endfor -%}
   ],
-  "hostTemplates" : {% include 'host.j2' %},
-  "instantiator" : {% include 'instantiator.j2' %}
+  "hostTemplates" : {%- include 'host_templates.j2' -%},
+  "instantiator" : {%- include 'instantiator.j2' -%}
 }

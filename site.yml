@@ -1,5 +1,13 @@
 ---
-# Cloudera playbook
+
+- name: Include cluster definition file
+  hosts: all
+  tasks:
+    - include_vars:
+        file: role_mappings.yml
+    - include_vars:
+        file: test_cluster_definition.yml
+  tags: always
 
 - name: Configure Cloudera Manager Repository
   hosts: cdh_servers
@@ -44,7 +52,8 @@
 - name: Install MIT KDC Client
   hosts: all
   roles:
-    - { role: krb5/client, when: (krb5_kdc_type is defined) and (krb5_kdc_type != 'none') }
+    - role: krb5/client
+      when: deployment.krb5 is defined
   tags: krb5
 
 - name: Configure EPEL Repository
@@ -63,11 +72,11 @@
   hosts: scm_server
   roles:
     - scm
-  tags: cluster_template
+  tags: scm, cluster_template
 
 - name: Install CDH
   hosts: scm_server
   roles:
     - cdh
-  tags: cluster_template
+  tags: cdh, cluster_template
 

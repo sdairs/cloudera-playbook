@@ -1,0 +1,32 @@
+---
+database_extra:
+  configs:
+    HIVE:
+      SERVICEWIDE:
+        hive_metastore_database_host: "{{ deployment.databases.HIVE.host | default(groups['db_server'][0]) }}"
+        hive_metastore_database_type: "{{ deployment.databases.HIVE.type | default('mysql') }}"
+        hive_metastore_database_name: "{{ deployment.databases.HIVE.name | default('hive') }}"
+        hive_metastore_database_user: "{{ deployment.databases.HIVE.user | default('hive') }}"
+        hive_metastore_database_password: "{{ deployment.databases.HIVE.password | default('changeme') }}"
+    HUE:
+      SERVICEWIDE:
+        database_host: "{{ deployment.databases.HUE.host | default(groups['db_server'][0]) }}"
+        database_type: "{{ deployment.databases.HUE.type | default('mysql') }}"
+        database_name: "{{ deployment.databases.HUE.name | default('hue') }}"
+        database_user: "{{ deployment.databases.HUE.user | default('hue') }}"
+        database_password: "{{ deployment.databases.HUE.password | default('changeme') }}"
+    OOZIE:
+      OOZIE_SERVER:
+        oozie_database_host: "{{ deployment.databases.OOZIE.host | default(groups['db_server'][0]) }}"
+        oozie_database_type: "{{ deployment.databases.OOZIE.type | default('mysql') }}"
+        oozie_database_name: "{{ deployment.databases.OOZIE.name | default('oozie') }}"
+        oozie_database_user: "{{ deployment.databases.OOZIE.user | default('oozie') }}"
+        oozie_database_password: "{{ deployment.databases.OOZIE.password | default('changeme') }}"
+    SENTRY:
+      SERVICEWIDE:
+        sentry_server_database_host: "{{ deployment.databases.SENTRY.host | default(groups['db_server'][0]) }}"
+        sentry_server_database_type: "{{ deployment.databases.SENTRY.type | default('mysql') }}"
+        sentry_server_database_name: "{{ deployment.databases.SENTRY.name | default('sentry') }}"
+        sentry_server_database_user: "{{ deployment.databases.SENTRY.user | default('sentry') }}"
+        sentry_server_database_password: "{{ deployment.databases.SENTRY.password | default('changeme') }}"
+

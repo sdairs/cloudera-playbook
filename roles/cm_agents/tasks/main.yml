@@ -1,8 +1,5 @@
 ---
 
-- name: Apply temporary workaround for Cloudera Manager issue OPSAPS-36322
-  include: 36322.yml
-
 - name: Install Cloudera Manager Agents
   yum:
     name:
@@ -15,7 +12,7 @@
   lineinfile:
     dest: /etc/cloudera-scm-agent/config.ini
     regexp: "^server_host"
-    line: "server_host={{ hostvars[scm_hostname]['inventory_hostname'] }}"
+    line: "server_host={{ groups['scm_server'][0] }}"
 
 - name: Restart Cloudera Manager Agents
   service:

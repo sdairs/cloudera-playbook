@@ -1,0 +1,204 @@
+---
+deployment:
+  databases:
+    CLOUDERA_MANAGER:
+      name: scm
+      user: scm
+      password: scm_password
+    ACTIVITYMONITOR:
+      name: amon
+      user: amon
+      password: amon_password
+    REPORTSMANAGER:
+      name: rman
+      user: rman
+      password: rman_password
+    NAVIGATOR:
+      name: nav
+      user: nav
+      password: nav_password
+    NAVIGATORMETASERVER:
+      name: navms
+      user: navms
+      password: navms_password
+    HIVE:
+      name: metastore
+      user: hive
+      password: hive_password
+    HUE:
+      name: hue
+      user: hue
+      password: hue_password
+    OOZIE:
+      name: oozie
+      user: oozie
+      password: oozie_password
+    SENTRY:
+      name: sentry
+      user: sentry
+      password: sentry_password
+  java:
+    installation_strategy: package
+    package_name: java-1.8.0-openjdk
+    # rpm_location: /tmp/jdk-8u181-linux-x64.rpm
+    # rpm_remote_src: no
+    # jce_location: /tmp/jce_policy-8.zip
+    # jce_remote_src: no
+  krb5:
+    kdc_host: ad.example.com
+    kdc_type: Active Directory
+    realm: AD.EXAMPLE.COM
+    enc_types: aes256-cts aes128-cts rc4-hmac
+    admin_username: cloudera-admin@AD.EXAMPLE.COM
+    admin_password: changeme
+  cloudera_manager:
+    version: 5.16.2
+    repository: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/5.16.2/
+    repository_key_url: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/RPM-GPG-KEY-cloudera  
+    license: 
+      type: enterprise
+      file: /tmp/license.txt
+    configs:
+      CLOUDERA_MANAGER:
+        ENABLE_API_DEBUG: true
+        AD_KDC_DOMAIN: OU=MyClusterHosts,OU=Clusters,DC=ad,DC=example,DC=com
+        AD_DELETE_ON_REGENERATE: true
+      HOSTS:
+        memory_overcommit_threshold: 0.95
+    csds:
+      - https://archive.cloudera.com/spark2/csd/SPARK2_ON_YARN-2.4.0.cloudera2.jar
+  clusters:
+    - name: Cluster 1
+      products:
+        CDH: 5.16.2
+        SPARK2: 2.4.0.cloudera2
+      parcel_repositories:
+        - https://archive.cloudera.com/cdh5/parcels/5.16.2/
+        - https://archive.cloudera.com/spark2/parcels/2.4.0.cloudera2/
+      services:
+        - HBASE
+        - HDFS
+        - HIVE
+        - HUE
+        - IMPALA
+        - OOZIE
+        - SENTRY
+        - SPARK2_ON_YARN
+        - YARN
+        - ZOOKEEPER
+      configs:
+        HBASE:
+        HDFS:
+          SERVICEWIDE:
+            # dfs_ha_fencing_methods: 'shell(true)'
+            dfs_namenode_acls_enabled: true
+            hadoop_secure_web_ui: true
+            hadoop_security_authorization: true
+            hadoop_security_authentication: kerberos
+          DATANODE:
+            dfs_data_dir_list: /dfs/dn
+            dfs_datanode_port: 1004
+            dfs_datanode_http_port: 1006
+          NAMENODE:
+            # autofailover_enabled: true
+            # dfs_federation_namenode_nameservice: nameservice1
+            # dfs_namenode_quorum_journal_name: nameservice1
+            dfs_name_dir_list: /dfs/nn
+          JOURNALNODE:
+            dfs_journalnode_edits_dir: /dfs/jn
+          SECONDARYNAMENODE:
+            fs_checkpoint_dir_list: /dfs/snn
+        HIVE:
+          HIVEMETASTORE:
+            hive_enable_db_notification: true
+            hive_metastore_delegation_token_store: org.apache.hadoop.hive.thrift.DBTokenStore
+          HIVESERVER2:
+            hiveserver2_enable_impersonation: false
+          WEBHCAT:
+            hive_webhcat_address_port: 7272
+        HUE:
+          SERVICEWIDE:
+            hue_service_safety_valve: '[impala]\nserver_port=21051\n\n[beeswax]\ndownload_cell_limit=10'
+        IMPALA:
+          SERVICEWIDE:
+            admission_control_enabled: true
+            all_admission_control_enabled: true
+            enable_core_dump: true
+            kerberos_reinit_interval: 10
+          IMPALAD:
+            enable_audit_event_log: true
+            logbuflevel: -1
+            scratch_dirs: /tmp/impala
+          CATALOGSERVER:
+            catalogd_embedded_jvm_heapsize: 603979776
+            logbuflevel: -1
+          STATESTORE:
+            logbuflevel: -1
+        OOZIE:
+          SERVICEWIDE:
+            oozie_upload_sharelib_cmd_timeout: 540
+          OOZIE_SERVER:
+            oozie_workflow_extension_schemas: ',ssh-action-0.1.xsd,hive-action-0.3.xsd,sqoop-action-0.3.xsd,shell-action-0.2.xsd,shell-action-0.1.xsd'
+            oozie_config_safety_valve: '<property>\n<name>oozie.action.launcher.mapreduce.job.ubertask.enable</name>\n<value>false</value>\n</property>'
+        SENTRY:
+        SPARK2_ON_YARN:
+        YARN:
+          SERVICEWIDE:
+            cm_yarn_container_usage_job_user: cmjobuser
+            cm_yarn_enable_container_usage_aggregation: true
+            hadoop_secure_web_ui: true
+          RESOURCEMANAGER:
+            yarn_scheduler_maximum_allocation_mb: 4096
+            yarn_scheduler_maximum_allocation_vcores: 4
+          NODEMANAGER:
+            yarn_nodemanager_resource_memory_mb: 4096
+            yarn_nodemanager_resource_cpu_vcores: 4
+            yarn_nodemanager_local_dirs:  /tmp/nm
+            yarn_nodemanager_log_dirs: /var/log/nm
+          GATEWAY:
+            mapred_submit_replication: 1
+            mapred_reduce_tasks: 6
+        ZOOKEEPER:
+          SERVICEWIDE:
+            zookeeper_datadir_autocreate: true
+      host_templates:
+        master1:
+          HDFS:
+            - NAMENODE
+            - SECONDARYNAMENODE
+            - HTTPFS
+          HBASE:
+            - MASTER
+            - HBASERESTSERVER
+            - HBASETHRIFTSERVER
+          HIVE:
+            - HIVESERVER2
+            - HIVEMETASTORE
+          HUE:
+            - HUE_SERVER
+            - HUE_LOAD_BALANCER
+          IMPALA:
+            - STATESTORE
+            - CATALOGSERVER
+          OOZIE:
+            - OOZIE_SERVER
+          SENTRY:
+            - SENTRY_SERVER
+          SPARK2_ON_YARN:
+            - SPARK2_YARN_HISTORY_SERVER
+          YARN:
+            - RESOURCEMANAGER
+            - JOBHISTORY
+          ZOOKEEPER:
+            - SERVER
+        workers:
+          HBASE:
+            - REGIONSERVER
+          HDFS:
+            - DATANODE
+          HIVE:
+            - GATEWAY
+          IMPALA:
+            - IMPALAD
+          YARN:
+            - NODEMANAGER

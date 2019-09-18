@@ -1,13 +1,12 @@
 ---
 
-- include_vars: ../../../group_vars/cdh_servers.yml
-- include_vars: ../../../group_vars/db_server.yml
+- include_vars: extra_configs.yml
 
 # Check whether cluster already exists
 # https://cloudera.github.io/cm_api/apidocs/v13/path__clusters.html
 - name: Check whether cluster exists
   uri:
-    url: "{{ cm_api_url }}/clusters/{{ cluster_display_name }}"
+    url: "{{ cm_api_url }}/clusters/{{ deployment.clusters[0].name | replace(' ', '%20') }}"
     method: GET
     status_code: 200,404
     force_basic_auth: yes
@@ -20,7 +19,7 @@
     cluster_exists: "{{ 'True' if clusters_resp.status == 200 else 'False' }}"
 
 - debug:
-    msg: "Cluster '{{ cluster_display_name }}' exists - {{ cluster_exists }}"
+    msg: "Cluster '{{ deployment.clusters[0].name }}' exists - {{ cluster_exists }}"
     verbosity: 1
 
 - name: Discover product versions from parcel manifests
@@ -31,19 +30,18 @@
     return_content: yes
   register: manifests
   with_items: 
-    - "{{ scm_parcel_repositories }}"
+    - "{{ deployment.clusters[0].parcel_repositories }}"
 
 - set_fact:
     scm_products: "{{ manifests.results | map(attribute='json') | list | json_query('[*].parcels[0].parcelName') | map('regex_replace', '-[a-z0-9]+.parcel$','') | list }}"
+    cluster_configs: "{{ deployment.clusters[0].configs | combine(database_extra.configs, recursive=True) }}"
+    cluster_host_templates: "{{ deployment.clusters[0].host_templates }}"
+  when: not cluster_exists
 
 # https://www.cloudera.com/documentation/enterprise/latest/topics/install_cluster_template.html
 - set_fact:
-    cluster_template_json: "{{ lookup('template', 'base.j2', convert_data=False) }}"
+    cluster_template: "{{ lookup('template', 'base.j2', convert_data=False) }}"
   when: not cluster_exists
-
-- debug:
-    var: cluster_template_json
-    verbosity: 1
 
 # https://cloudera.github.io/cm_api/apidocs/v13/path__cm_importClusterTemplate.html
 - name: Import cluster template
@@ -51,7 +49,7 @@
     url: "{{ cm_api_url }}/cm/importClusterTemplate?addRepositories=true"
     method: POST
     body_format: json
-    body: "{{ cluster_template_json|to_json }}"
+    body: "{{ cluster_template | to_json }}"
     status_code: 200
     force_basic_auth: yes
     user: "{{ scm_default_user }}"
@@ -70,7 +68,7 @@
   when: not cluster_exists
 
 - debug:
-    msg: "Login to Cloudera Manager to monitor import progress - http://{{ hostvars[scm_hostname]['inventory_hostname'] }}:{{ scm_port }}/cmf/command/{{ command_id }}/details"
+    msg: "Login to Cloudera Manager to monitor import progress - http://{{ scm_host }}:{{ scm_port }}/cmf/command/{{ command_id }}/details"
     verbosity: 1
   when: not cluster_exists
 
