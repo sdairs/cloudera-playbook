@@ -54,7 +54,7 @@ deployment:
   cloudera_manager:
     version: 5.16.2
     repository: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/5.16.2/
-    repository_key_url: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/RPM-GPG-KEY-cloudera  
+    repository_key_url: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/RPM-GPG-KEY-cloudera
     license: 
       type: enterprise
       file: /tmp/license.txt
@@ -160,6 +160,7 @@ deployment:
             mapred_reduce_tasks: 6
         ZOOKEEPER:
           SERVICEWIDE:
+            enableSecurity: true
             zookeeper_datadir_autocreate: true
       host_templates:
         master1:
