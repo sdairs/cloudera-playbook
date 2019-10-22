@@ -4,8 +4,6 @@
   hosts: all
   tasks:
     - include_vars:
-        file: role_mappings.yml
-    - include_vars:
         file: secrets.yml
     - include_vars:
         file: "{{ cluster_definition_file | default('cluster_definition.yml') }}"

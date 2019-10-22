@@ -2,6 +2,26 @@
 
 - include_vars: extra_configs.yml
 
+- set_fact:
+    mgmt_service_roles_base:
+      - ACTIVITYMONITOR
+      - ALERTPUBLISHER
+      - EVENTSERVER
+      - HOSTMONITOR
+      - REPORTSMANAGER
+      - SERVICEMONITOR
+    mgmt_service_roles_nav:
+      - NAVIGATOR
+      - NAVIGATORMETASERVER
+    
+- set_fact:
+    mgmt_service_roles: "{{ mgmt_service_roles_base }}"
+  when: deployment.cloudera_manager.version.split('.')[0] == '7'
+
+- set_fact:
+    mgmt_service_roles: "{{ mgmt_service_roles_base + mgmt_service_roles_nav }}"
+  when: deployment.cloudera_manager.version.split('.')[0] < '7'
+
 - name: Install the Cloudera Manager Server Packages
   yum:
     name:

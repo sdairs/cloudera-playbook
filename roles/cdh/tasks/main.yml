@@ -1,6 +1,7 @@
 ---
 
 - include_vars: extra_configs.yml
+- include_vars: role_mappings.yml
 
 # Check whether cluster already exists
 # https://cloudera.github.io/cm_api/apidocs/v13/path__clusters.html

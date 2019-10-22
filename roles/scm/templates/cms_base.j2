@@ -3,7 +3,7 @@
   "type": "MGMT",
   "roles": [
   {%- set role_sep = joiner(",") -%}
-  {%- for role in role_mappings.MGMT -%}
+  {%- for role in mgmt_service_roles -%}
   {{ role_sep() }}
     {
       "name": "mgmt-{{ role }}",
@@ -19,7 +19,7 @@
   ],
   "roleConfigGroups": [
   {%- set role_group_sep = joiner(",") -%}
-  {%- for role in role_mappings.MGMT -%}
+  {%- for role in mgmt_service_roles -%}
   {{ role_group_sep() }}
     {
       "name": "mgmt-{{ role }}-BASE",
