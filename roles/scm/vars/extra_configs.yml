@@ -9,7 +9,7 @@ krb5_kdc_admin_user: "{{ deployment.krb5.admin_username | default('cloudera-scm/
 krb5_kdc_admin_passwd: "{{ deployment.krb5.admin_password | default('changeme') }}"
 
 # TODO fix duplication between here and scm/vars/extra_configs.yml
-parcel_repos: "{{ deployment.clusters[0].parcel_repositories | map('regex_replace', '^(http[s]?://)', '^(?P<proto>http[s]?://)', '\\g<proto>'+cloudera_repo_username+':'+cloudera_repo_password+'@') | list }}"
+parcel_repos: "{{ deployment.clusters[0].parcel_repositories | map('regex_replace', '^(?P<proto>http[s]?://)', '\\g<proto>'+cloudera_repo_username+':'+cloudera_repo_password+'@') | list }}"
 
 # TODO read secrets from vault
 cloudera_manager_database:

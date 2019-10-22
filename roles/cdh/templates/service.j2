@@ -2,7 +2,8 @@
   "refName": "{{ service_type }}-1",
   "serviceType": "{{ service_type }}",
   {%- set config_sep = joiner(",") -%}
-  {%- if cluster_configs[service_type]['SERVICEWIDE'] is mapping -%}
+  {%- if cluster_configs[service_type]['SERVICEWIDE'] is mapping 
+      and not cluster_configs[service_type]['SERVICEWIDE'] is none -%}
   "serviceConfigs": [
   {%- for (k,v) in cluster_configs[service_type]['SERVICEWIDE'].iteritems() -%}
   {{ config_sep() }}

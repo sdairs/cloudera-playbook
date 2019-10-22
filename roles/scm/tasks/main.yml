@@ -96,8 +96,9 @@
   when: deployment.cloudera_manager.license.type == 'enterprise'
 
 - debug:
-    msg: "License file '{{ deployment.cloudera_manager.license.file }}' exists = {{ license_file.stat.exists }}"
+    msg: "License file exists = {{ license_file.stat.exists }}"
     verbosity: 1
+  when: deployment.cloudera_manager.license.type == 'enterprise'
 
 # https://cloudera.github.io/cm_api/apidocs/v12/path__cm_license.html
 - name: Upload license file to Cloudera Manager
