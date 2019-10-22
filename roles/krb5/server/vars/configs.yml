@@ -1,0 +1,10 @@
+---
+
+krb5_realm: "{{ deployment.krb5.realm | upper | default('CLOUDERA.LOCAL') }}"
+krb5_kdc_type: "{{ deployment.krb5.kdc_type | default('MIT KDC') }}"
+krb5_kdc_host: "{{ deployment.krb5.kdc_host | default(groups['krb5_server'][0]) }}"
+krb5_kdc_admin_user: "{{ deployment.krb5.admin_username | default('cloudera-scm/admin@' + krb5_realm) }}"
+krb5_kdc_admin_passwd: "{{ deployment.krb5.admin_password | default('changeme') }}"
+krb5_kdc_master_passwd: changeme
+krb5_enc_types: "{{ deployment.krb5.enc_types | default('aes256-cts aes128-cts rc4-hmac') }}"
+

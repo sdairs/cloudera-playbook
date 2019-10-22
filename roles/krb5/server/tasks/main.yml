@@ -1,5 +1,7 @@
 ---
 
+- include_vars: configs.yml
+
 - name: Install KRB5 server
   yum:
     name:

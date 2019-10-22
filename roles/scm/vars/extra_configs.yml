@@ -3,6 +3,11 @@
 # TODO set/discover this elsewhere
 database_type: mysql
 
+# TODO fix duplication between here and krb5/server/vars
+krb5_realm: "{{ deployment.krb5.realm | upper | default('CLOUDERA.LOCAL') }}"
+krb5_kdc_admin_user: "{{ deployment.krb5.admin_username | default('cloudera-scm/admin@' + krb5_realm) }}"
+krb5_kdc_admin_passwd: "{{ deployment.krb5.admin_password | default('changeme') }}"
+
 cloudera_manager_database:
   host: "{{ deployment.databases.CLOUDERA_MANAGER.host | default(groups['db_server'][0]) }}"
   type: "{{ deployment.databases.CLOUDERA_MANAGER.type | default(database_type) }}"
@@ -44,10 +49,10 @@ database_extra:
 kerberos_extra:
   configs:
     CLOUDERA_MANAGER:
-      KDC_HOST: "{{ deployment.krb5.kdc_host }}"
-      KDC_TYPE: "{{ deployment.krb5.kdc_type }}"
-      KRB_ENC_TYPES: "{{ deployment.krb5.enc_types }}"
-      SECURITY_REALM: "{{ deployment.krb5.realm }}"
+      KDC_HOST: "{{ deployment.krb5.kdc_host | default(groups['krb5_server'][0]) }}"
+      KDC_TYPE: "{{ deployment.krb5.kdc_type | default('MIT KDC') }}"
+      KRB_ENC_TYPES: "{{ deployment.krb5.enc_types | default('aes256-cts aes128-cts rc4-hmac') }}"
+      SECURITY_REALM: "{{ krb5_realm }}"
       
 parcels_extra:
   configs:

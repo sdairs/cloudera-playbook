@@ -150,7 +150,7 @@
 # https://cloudera.github.io/cm_api/apidocs/v13/path__cm_commands_importAdminCredentials.html
 - name: Import KDC admin credentials
   uri:
-    url: "{{ cm_api_url }}/cm/commands/importAdminCredentials?username={{ deployment.krb5.admin_username }}&password={{ deployment.krb5.admin_password }}"
+    url: "{{ cm_api_url }}/cm/commands/importAdminCredentials?username={{ krb5_kdc_admin_user }}&password={{ krb5_kdc_admin_passwd }}"
     method: POST
     status_code: 200
     force_basic_auth: yes
