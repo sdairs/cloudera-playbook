@@ -1,12 +1,14 @@
 ---
 
-- name: Include cluster definition file
+- name: Include variables
   hosts: all
   tasks:
     - include_vars:
         file: role_mappings.yml
     - include_vars:
-        file: test_cluster_definition.yml
+        file: secrets.yml
+    - include_vars:
+        file: "{{ cluster_definition_file | default('cluster_definition.yml') }}"
   tags: always
 
 - name: Configure Cloudera Manager Repository

@@ -30,7 +30,7 @@
     return_content: yes
   register: manifests
   with_items: 
-    - "{{ deployment.clusters[0].parcel_repositories }}"
+    - "{{ parcel_repos }}"
 
 - set_fact:
     scm_products: "{{ manifests.results | map(attribute='json') | list | json_query('[*].parcels[0].parcelName') | map('regex_replace', '-[a-z0-9]+.parcel$','') | list }}"
