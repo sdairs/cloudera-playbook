@@ -88,6 +88,9 @@ deployment:
         - ZOOKEEPER
       configs:
         HBASE:
+          SERVICEWIDE:
+            hbase_restserver_security_authentication: kerberos
+            hbase_security_authentication: kerberos
         HDFS:
           SERVICEWIDE:
             # dfs_ha_fencing_methods: 'shell(true)'
