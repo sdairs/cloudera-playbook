@@ -31,7 +31,7 @@ deployment:
       password: sentry_password
   java:
     installation_strategy: package
-    package_name: java-1.8.0-openjdk
+    package_name: java-1.8.0-openjdk-devel
 #    rpm_location: /tmp/jdk-8u181-linux-x64.rpm
 #    rpm_remote_src: no
 #    jce_location: /tmp/jce_policy-8.zip
