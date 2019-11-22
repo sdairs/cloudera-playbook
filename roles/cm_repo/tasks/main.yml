@@ -3,12 +3,12 @@
 - set_fact:
     repo_base_url: "{{ deployment.cloudera_manager.repository | regex_replace('^(?P<proto>http[s]?://)', '\\g<proto>'+cloudera_repo_username+':'+cloudera_repo_password+'@')}}"
     repo_gpg_key: "{{ deployment.cloudera_manager.repository_key_url | regex_replace('^(?P<proto>http[s]?://)', '\\g<proto>'+cloudera_repo_username+':'+cloudera_repo_password+'@') }}"
-  when: cloudera_repo_username != "" and cloudera_repo_password != ""
+  when: cloudera_repo_username | default('') != "" and cloudera_repo_password | default('') != ""
 
 - set_fact:
     repo_base_url: "{{ deployment.cloudera_manager.repository }}"
     repo_gpg_key: "{{ deployment.cloudera_manager.repository_key_url }}"
-  when: cloudera_repo_username == "" and cloudera_repo_password == ""
+  when: cloudera_repo_username | default('') == "" and cloudera_repo_password | default('')  == ""
   
 - name: Add Cloudera Manager yum repository
   yum_repository:
