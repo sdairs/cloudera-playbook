@@ -1,7 +1,7 @@
 {%- set j = joiner(",") -%}
 {
   "items" : [ 
-{%- for (k,v) in scm_configs.CLOUDERA_MANAGER.iteritems() -%}
+{%- for (k,v) in scm_configs.CLOUDERA_MANAGER.items() -%}
 {{ j() }}
   {%- if (v is sameas true) or (v is sameas false) -%}
     {

@@ -12,7 +12,7 @@
         "roleConfigGroupName": "mgmt-{{ role }}-BASE"
       },
       "hostRef": {
-        "hostId": "{{ scm_host_ids[scm_host] }}"
+        "hostId": "{{ scm_hosts['ids'][scm_host] }}"
       }
     }
   {%- endfor -%}
@@ -33,7 +33,7 @@
         {%- if scm_configs.MGMT[role] is mapping -%}
         "items": [
         {%- set config_sep = joiner(",") -%}
-        {%- for (k,v) in scm_configs.MGMT[role].iteritems() -%}
+        {%- for (k,v) in scm_configs.MGMT[role].items() -%}
         {{ config_sep() }}
           {%- if (v is sameas true) or (v is sameas false) -%}
           {

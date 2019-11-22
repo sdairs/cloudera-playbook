@@ -1,8 +1,4 @@
 ---
-
-# TODO fix duplication with scm
-parcel_repos: "{{ deployment.clusters[0].parcel_repositories | map('regex_replace', '^(?P<proto>http[s]?://)', '\\g<proto>'+cloudera_repo_username+':'+cloudera_repo_password+'@') | list }}"
-
 database_extra:
   configs:
     HIVE:

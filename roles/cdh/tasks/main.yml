@@ -25,13 +25,13 @@
 
 - name: Discover product versions from parcel manifests
   uri:
-    url: "{{ item }}/manifest.json"
+    url: "{{ item }}"
     status_code: 200
     body_format: json
     return_content: yes
   register: manifests
   with_items: 
-    - "{{ parcel_repos }}"
+    - "{{ lookup('template', 'parcel_repos.j2') | map('regex_replace','/?$','/manifest.json') | list }}"
 
 - set_fact:
     scm_products: "{{ manifests.results | map(attribute='json') | list | json_query('[*].parcels[0].parcelName') | map('regex_replace', '-[a-z0-9]+.parcel$','') | list }}"

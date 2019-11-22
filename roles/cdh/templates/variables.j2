@@ -2,8 +2,8 @@
   {%- set config_joiner = joiner(",") -%}
   {%- for service_type in cluster_configs -%}
     {%- if cluster_configs[service_type] is mapping -%}
-    {%- for (role_name,configs) in cluster_configs[service_type].iteritems() -%}
-      {%- for (k,v) in configs.iteritems() -%}
+    {%- for (role_name,configs) in cluster_configs[service_type].items() -%}
+      {%- for (k,v) in configs.items() -%}
       {{ config_joiner() }}
       {%- if (v is sameas true) or (v is sameas false) -%}
       {

@@ -40,41 +40,36 @@ deployment:
   java:
     installation_strategy: package
     package_name: java-1.8.0-openjdk-devel
-    # rpm_location: /tmp/jdk-8u181-linux-x64.rpm
-    # rpm_remote_src: no
-    # jce_location: /tmp/jce_policy-8.zip
-    # jce_remote_src: no
+#    rpm_location: /tmp/jdk-8u181-linux-x64.rpm
+#    rpm_remote_src: no
+#    jce_location: /tmp/jce_policy-8.zip
+#    jce_remote_src: no
   krb5:
-    kdc_host: ad.example.com
-    kdc_type: Active Directory
-    realm: AD.EXAMPLE.COM
+#    kdc_host: ad.example.com
+    kdc_type: MIT KDC
+    realm: MIT.EXAMPLE.COM
     enc_types: aes256-cts aes128-cts rc4-hmac
-    admin_username: cloudera-admin@AD.EXAMPLE.COM
-    admin_password: changeme
+#    admin_username: cloudera-admin@AD.EXAMPLE.COM
+#    admin_password: changeme
   cloudera_manager:
-    version: 5.16.2
-    repository: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/5.16.2/
-    repository_key_url: https://archive.cloudera.com/cm5/redhat/7/x86_64/cm/RPM-GPG-KEY-cloudera
+    version: 6.3.1
+    repository: https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/
+    repository_key_url: https://archive.cloudera.com/cm6/6.3.1/redhat7/yum/RPM-GPG-KEY-cloudera
     license: 
       type: enterprise
       file: /tmp/license.txt
     configs:
       CLOUDERA_MANAGER:
         ENABLE_API_DEBUG: true
-        AD_KDC_DOMAIN: OU=MyClusterHosts,OU=Clusters,DC=ad,DC=example,DC=com
-        AD_DELETE_ON_REGENERATE: true
       HOSTS:
         memory_overcommit_threshold: 0.95
-    csds:
-      - https://archive.cloudera.com/spark2/csd/SPARK2_ON_YARN-2.4.0.cloudera2.jar
   clusters:
     - name: Cluster 1
       products:
-        CDH: 5.16.2
-        SPARK2: 2.4.0.cloudera2
+        CDH: 6.3.2
       parcel_repositories:
-        - https://archive.cloudera.com/cdh5/parcels/5.16.2/
-        - https://archive.cloudera.com/spark2/parcels/2.4.0.cloudera2/
+         - https://archive.cloudera.com/cdh6/6.3.2/parcels/
+#        - https://archive.cloudera.com/p/cdh7/7.x/parcels/
       services:
         - HBASE
         - HDFS
@@ -83,7 +78,7 @@ deployment:
         - IMPALA
         - OOZIE
         - SENTRY
-        - SPARK2_ON_YARN
+        - SPARK_ON_YARN
         - YARN
         - ZOOKEEPER
       configs:
@@ -91,9 +86,10 @@ deployment:
           SERVICEWIDE:
             hbase_restserver_security_authentication: kerberos
             hbase_security_authentication: kerberos
+            hbase_security_authorization: true
         HDFS:
           SERVICEWIDE:
-            # dfs_ha_fencing_methods: 'shell(true)'
+            dfs_ha_fencing_methods: 'shell(true)'
             dfs_namenode_acls_enabled: true
             hadoop_secure_web_ui: true
             hadoop_security_authorization: true
@@ -103,9 +99,9 @@ deployment:
             dfs_datanode_port: 1004
             dfs_datanode_http_port: 1006
           NAMENODE:
-            # autofailover_enabled: true
-            # dfs_federation_namenode_nameservice: nameservice1
-            # dfs_namenode_quorum_journal_name: nameservice1
+            autofailover_enabled: true
+            dfs_federation_namenode_nameservice: nameservice1
+            dfs_namenode_quorum_journal_name: nameservice1
             dfs_name_dir_list: /dfs/nn
           JOURNALNODE:
             dfs_journalnode_edits_dir: /dfs/jn
@@ -144,7 +140,6 @@ deployment:
             oozie_workflow_extension_schemas: ',ssh-action-0.1.xsd,hive-action-0.3.xsd,sqoop-action-0.3.xsd,shell-action-0.2.xsd,shell-action-0.1.xsd'
             oozie_config_safety_valve: '<property>\n<name>oozie.action.launcher.mapreduce.job.ubertask.enable</name>\n<value>false</value>\n</property>'
         SENTRY:
-        SPARK2_ON_YARN:
         YARN:
           SERVICEWIDE:
             cm_yarn_container_usage_job_user: cmjobuser
@@ -159,43 +154,80 @@ deployment:
             yarn_nodemanager_local_dirs:  /tmp/nm
             yarn_nodemanager_log_dirs: /var/log/nm
           GATEWAY:
-            mapred_submit_replication: 1
+            mapred_submit_replication: 3
             mapred_reduce_tasks: 6
         ZOOKEEPER:
           SERVICEWIDE:
             enableSecurity: true
+            quorum_auth_enable_sasl: true
             zookeeper_datadir_autocreate: true
       host_templates:
-        master1:
-          HDFS:
-            - NAMENODE
-            - SECONDARYNAMENODE
-            - HTTPFS
+        Master1:
           HBASE:
             - MASTER
+          HDFS:
+            - NAMENODE
+            - JOURNALNODE
+            - FAILOVERCONTROLLER
+          HIVE:
+            - HIVEMETASTORE
+          SENTRY:
+            - SENTRY_SERVER
+          YARN:
+            - RESOURCEMANAGER
+          ZOOKEEPER:
+            - SERVER
+        Master2:
+          HBASE:
+            - MASTER
+          HDFS:
+            - NAMENODE
+            - JOURNALNODE
+            - FAILOVERCONTROLLER
+          HIVE:
+            - HIVEMETASTORE
+          SENTRY:
+            - SENTRY_SERVER
+          YARN:
+            - RESOURCEMANAGER
+          ZOOKEEPER:
+            - SERVER
+        Master3:
+          HBASE:
+            - MASTER
+          HDFS:
+            - BALANCER
+            - JOURNALNODE
+          HIVE:
+            - GATEWAY
+          IMPALA:
+            - STATESTORE
+            - CATALOGSERVER
+          SPARK_ON_YARN:
+            - SPARK_YARN_HISTORY_SERVER
+          YARN:
+            - JOBHISTORY
+          ZOOKEEPER:
+            - SERVER
+        Edge:
+          HDFS:
+            - HTTPFS
+          HBASE:
             - HBASERESTSERVER
             - HBASETHRIFTSERVER
           HIVE:
             - HIVESERVER2
-            - HIVEMETASTORE
+            - GATEWAY
           HUE:
             - HUE_SERVER
             - HUE_LOAD_BALANCER
-          IMPALA:
-            - STATESTORE
-            - CATALOGSERVER
           OOZIE:
             - OOZIE_SERVER
-          SENTRY:
-            - SENTRY_SERVER
-          SPARK2_ON_YARN:
-            - SPARK2_YARN_HISTORY_SERVER
+          SPARK_ON_YARN:
+            - GATEWAY
           YARN:
-            - RESOURCEMANAGER
-            - JOBHISTORY
-          ZOOKEEPER:
-            - SERVER
-        workers:
+            - GATEWAY
+        Workers:
           HBASE:
             - REGIONSERVER
           HDFS:
@@ -204,5 +236,7 @@ deployment:
             - GATEWAY
           IMPALA:
             - IMPALAD
+          SPARK_ON_YARN:
+            - GATEWAY
           YARN:
             - NODEMANAGER
