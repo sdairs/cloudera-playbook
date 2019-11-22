@@ -53,6 +53,8 @@ role_mappings:
   HIVE_LLAP:
     - LLAPPROXY
   HIVE_ON_TEZ:
+    - GATEWAY
+    - HIVESERVER2
   HUE:
     - HUE_LOAD_BALANCER
     - HUE_SERVER
