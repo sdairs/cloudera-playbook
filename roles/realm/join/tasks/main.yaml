@@ -11,8 +11,8 @@
          - openldap-clients
        state: present
       
-  - name: Restart the messagebus service, otherwise the realmd service will not start
-    command: systemctl restart messagebus
+  - name: Refresh the running messagebus config, otherwise the realmd service will not start
+    command: /usr/bin/pkill -HUP messagebus
 
   - name: pexpect is required to handle pwd prompt
     pip: name=pexpect
